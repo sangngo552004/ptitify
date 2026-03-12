@@ -1,0 +1,23 @@
+# Mở server ở chế độ offline
+embed-server --std-out=echo
+
+# Thêm module MySQL
+module add --name=com.mysql --resources=/tmp/mysql-connector.jar --dependencies=javax.api,javax.transaction.api
+
+# Đăng ký JDBC Driver
+/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql, driver-module-name=com.mysql, driver-class-name=com.mysql.cj.jdbc.Driver)
+
+# Đăng ký Data Source sử dụng biến môi trường (sẽ được inject lúc runtime)
+data-source add \
+    --name=TeamAppDS \
+    --jndi-name=java:/TeamAppDS \
+    --driver-name=mysql \
+    --connection-url=${env.DB_URL} \
+    --user-name=${env.DB_USER} \
+    --password=${env.DB_PASS} \
+    --use-java-context=true \
+    --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker \
+    --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter
+
+# Đóng server offline
+stop-embedded-server

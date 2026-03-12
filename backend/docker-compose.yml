@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ejb-app:
+    build: .
+    container_name: ejb-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    # Nên có depends_on nếu bạn chạy cả MySQL container trong này
+    # depends_on:
+    #   - mysql-db
