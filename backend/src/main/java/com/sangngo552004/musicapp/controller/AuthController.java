@@ -50,6 +50,13 @@ public class AuthController {
     }
 
     @POST
+    @Path("/logout")
+    public Response logout(@Valid RefreshTokenRequest request) {
+        authService.logout(request);
+        return Response.ok(ApiResponse.of(Response.Status.OK.getStatusCode(), "Logout successful", null)).build();
+    }
+
+    @POST
     @Path("/google")
     public Response googleLogin(@Valid GoogleLoginRequest request) {
         AuthResponse response = authService.loginWithGoogle(request);

@@ -8,19 +8,21 @@ import com.sangngo552004.musicapp.dto.RefreshTokenRequest;
 import com.sangngo552004.musicapp.dto.RegisterRequest;
 import com.sangngo552004.musicapp.dto.ResetPasswordRequest;
 import com.sangngo552004.musicapp.entity.PasswordResetToken;
+import com.sangngo552004.musicapp.entity.RefreshToken;
 import com.sangngo552004.musicapp.entity.User;
 import com.sangngo552004.musicapp.exception.AuthException;
 import com.sangngo552004.musicapp.exception.ValidationException;
 import com.sangngo552004.musicapp.repository.PasswordResetTokenRepository;
+import com.sangngo552004.musicapp.repository.RefreshTokenRepository;
 import com.sangngo552004.musicapp.repository.UserRepository;
 import com.sangngo552004.musicapp.security.JwtProvider;
-import io.jsonwebtoken.Claims;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Stateless
 public class AuthService {
@@ -30,6 +32,9 @@ public class AuthService {
 
     @Inject
     private PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @Inject
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Inject
     private JwtProvider jwtProvider;
@@ -68,11 +73,21 @@ public class AuthService {
     }
 
     public AuthResponse refreshToken(RefreshTokenRequest request) {
-        Claims claims = jwtProvider.parseRefreshToken(request.getRefreshToken());
-        Long userId = Long.parseLong(claims.getSubject());
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AuthException("User was not found"));
-        return buildAuthResponse(user);
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken().trim())
+                .orElseThrow(() -> new AuthException("Refresh token is invalid"));
+
+        if (refreshToken.isRevoked()) {
+            throw new AuthException("Refresh token has been revoked");
+        }
+
+        if (refreshToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new AuthException("Refresh token has expired");
+        }
+
+        refreshToken.setRevoked(true);
+        refreshTokenRepository.save(refreshToken);
+
+        return buildAuthResponse(refreshToken.getUser());
     }
 
     public AuthResponse loginWithGoogle(GoogleLoginRequest request) {
@@ -114,6 +129,13 @@ public class AuthService {
         passwordResetTokenRepository.save(resetToken);
     }
 
+    public void logout(RefreshTokenRequest request) {
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken().trim())
+                .orElseThrow(() -> new AuthException("Refresh token is invalid"));
+        refreshToken.setRevoked(true);
+        refreshTokenRepository.save(refreshToken);
+    }
+
     private void validateRegistration(RegisterRequest request) {
         String normalizedEmail = request.getEmail().trim().toLowerCase();
         if (userRepository.existsByEmail(normalizedEmail)) {
@@ -145,9 +167,17 @@ public class AuthService {
     }
 
     private AuthResponse buildAuthResponse(User user) {
+        refreshTokenRepository.revokeByUserId(user.getId());
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setUser(user);
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiryDate(LocalDateTime.now().plusDays(7));
+        refreshToken.setRevoked(false);
+        refreshTokenRepository.save(refreshToken);
+
         return new AuthResponse(
                 jwtProvider.generateAccessToken(user),
-                jwtProvider.generateRefreshToken(user),
+                refreshToken.getToken(),
                 userMapper.toResponse(user)
         );
     }

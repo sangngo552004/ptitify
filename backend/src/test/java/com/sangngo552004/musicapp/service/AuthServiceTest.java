@@ -6,14 +6,14 @@ import com.sangngo552004.musicapp.dto.RefreshTokenRequest;
 import com.sangngo552004.musicapp.dto.RegisterRequest;
 import com.sangngo552004.musicapp.dto.UserResponse;
 import com.sangngo552004.musicapp.entity.PasswordResetToken;
+import com.sangngo552004.musicapp.entity.RefreshToken;
 import com.sangngo552004.musicapp.entity.User;
 import com.sangngo552004.musicapp.exception.AuthException;
 import com.sangngo552004.musicapp.exception.ValidationException;
 import com.sangngo552004.musicapp.repository.PasswordResetTokenRepository;
+import com.sangngo552004.musicapp.repository.RefreshTokenRepository;
 import com.sangngo552004.musicapp.repository.UserRepository;
 import com.sangngo552004.musicapp.security.JwtProvider;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -43,6 +43,9 @@ class AuthServiceTest {
 
     @Mock
     private PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Mock
     private JwtProvider jwtProvider;
@@ -76,14 +79,14 @@ class AuthServiceTest {
             saved.setId(1L);
             return saved;
         });
+        when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(jwtProvider.generateAccessToken(any(User.class))).thenReturn("access-token");
-        when(jwtProvider.generateRefreshToken(any(User.class))).thenReturn("refresh-token");
         when(userMapper.toResponse(any(User.class))).thenReturn(mappedUser);
 
         AuthResponse response = authService.register(request);
 
         assertEquals("access-token", response.getAccessToken());
-        assertEquals("refresh-token", response.getRefreshToken());
+        assertTrue(response.getRefreshToken() != null && !response.getRefreshToken().isBlank());
         assertEquals(mappedUser, response.getUser());
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
@@ -126,14 +129,14 @@ class AuthServiceTest {
         UserResponse mappedUser = buildUserResponse(1L, "tester", "user@example.com", "Test User");
 
         when(userRepository.findByEmailOrUsername("tester")).thenReturn(Optional.of(user));
+        when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(jwtProvider.generateAccessToken(user)).thenReturn("access-token");
-        when(jwtProvider.generateRefreshToken(user)).thenReturn("refresh-token");
         when(userMapper.toResponse(user)).thenReturn(mappedUser);
 
         AuthResponse response = authService.login(request);
 
         assertEquals("access-token", response.getAccessToken());
-        assertEquals("refresh-token", response.getRefreshToken());
+        assertTrue(response.getRefreshToken() != null && !response.getRefreshToken().isBlank());
         assertEquals(mappedUser, response.getUser());
     }
 
@@ -158,24 +161,45 @@ class AuthServiceTest {
         RefreshTokenRequest request = new RefreshTokenRequest();
         request.setRefreshToken("refresh-token");
 
-        Claims claims = Jwts.claims().subject("5").build();
         User user = new User();
         user.setId(5L);
         user.setEmail("user@example.com");
 
+        RefreshToken storedToken = new RefreshToken();
+        storedToken.setToken("refresh-token");
+        storedToken.setUser(user);
+        storedToken.setExpiryDate(LocalDateTime.now().plusDays(1));
+        storedToken.setRevoked(false);
+
         UserResponse mappedUser = buildUserResponse(5L, "tester", "user@example.com", "Test User");
 
-        when(jwtProvider.parseRefreshToken("refresh-token")).thenReturn(claims);
-        when(userRepository.findById(5L)).thenReturn(Optional.of(user));
+        when(refreshTokenRepository.findByToken("refresh-token")).thenReturn(Optional.of(storedToken));
+        when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(jwtProvider.generateAccessToken(user)).thenReturn("new-access-token");
-        when(jwtProvider.generateRefreshToken(user)).thenReturn("new-refresh-token");
         when(userMapper.toResponse(user)).thenReturn(mappedUser);
 
         AuthResponse response = authService.refreshToken(request);
 
         assertEquals("new-access-token", response.getAccessToken());
-        assertEquals("new-refresh-token", response.getRefreshToken());
+        assertTrue(response.getRefreshToken() != null && !response.getRefreshToken().isBlank());
         assertEquals(mappedUser, response.getUser());
+        assertTrue(storedToken.isRevoked());
+    }
+
+    @Test
+    void refreshTokenShouldThrowAuthExceptionWhenRevoked() {
+        RefreshTokenRequest request = new RefreshTokenRequest();
+        request.setRefreshToken("revoked-token");
+
+        RefreshToken storedToken = new RefreshToken();
+        storedToken.setRevoked(true);
+        storedToken.setExpiryDate(LocalDateTime.now().plusDays(1));
+
+        when(refreshTokenRepository.findByToken("revoked-token")).thenReturn(Optional.of(storedToken));
+
+        AuthException exception = assertThrows(AuthException.class, () -> authService.refreshToken(request));
+
+        assertEquals("Refresh token has been revoked", exception.getMessage());
     }
 
     @Test
@@ -196,6 +220,23 @@ class AuthServiceTest {
 
         assertEquals("Reset token has expired", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void logoutShouldRevokeStoredRefreshToken() {
+        RefreshTokenRequest request = new RefreshTokenRequest();
+        request.setRefreshToken("refresh-token");
+
+        RefreshToken storedToken = new RefreshToken();
+        storedToken.setToken("refresh-token");
+        storedToken.setRevoked(false);
+
+        when(refreshTokenRepository.findByToken("refresh-token")).thenReturn(Optional.of(storedToken));
+
+        authService.logout(request);
+
+        assertTrue(storedToken.isRevoked());
+        verify(refreshTokenRepository).save(storedToken);
     }
 
     private UserResponse buildUserResponse(Long id, String username, String email, String fullName) {

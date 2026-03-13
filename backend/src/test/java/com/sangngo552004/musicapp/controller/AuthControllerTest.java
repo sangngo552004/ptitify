@@ -72,4 +72,19 @@ class AuthControllerTest {
         assertNull(body.getData());
         verify(authService).forgotPassword(request);
     }
+
+    @Test
+    void logoutShouldReturnSuccessResponse() {
+        com.sangngo552004.musicapp.dto.RefreshTokenRequest request =
+                new com.sangngo552004.musicapp.dto.RefreshTokenRequest();
+        request.setRefreshToken("refresh-token");
+
+        Response response = authController.logout(request);
+        ApiResponse<?> body = (ApiResponse<?>) response.getEntity();
+
+        assertEquals(200, response.getStatus());
+        assertEquals("Logout successful", body.getMessage());
+        assertNull(body.getData());
+        verify(authService).logout(request);
+    }
 }
