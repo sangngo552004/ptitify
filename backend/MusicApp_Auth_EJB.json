@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "EJB Music App Auth API",
+    "name": "EJB Music App Auth & Features API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -11,26 +11,12 @@
           "name": "1. Register",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\",\n    \"username\": \"testuser\",\n    \"fullName\": \"Nguyen Van A\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
-            }
+            "url": {"raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"]}
           }
         },
         {
@@ -53,26 +39,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            }
+            "url": {"raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"]}
           }
         },
         {
@@ -93,26 +65,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/auth/refresh",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
-            }
+            "url": {"raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"]}
           }
         },
         {
@@ -134,52 +92,51 @@
           ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"googleIdToken\": \"paste_your_google_id_token_here\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/auth/google",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "google"
-              ]
-            }
+            "url": {"raw": "{{baseUrl}}/auth/google", "host": ["{{baseUrl}}"], "path": ["auth", "google"]}
           }
         },
         {
           "name": "5. Forgot Password",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"email\": \"test@example.com\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/auth/forgot-password",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "forgot-password"
-              ]
+            "url": {"raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"]}
+          }
+        },
+        {
+          "name": "6. Logout (Clear Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.unset(\"accessToken\");",
+                  "    pm.collectionVariables.unset(\"refreshToken\");",
+                  "    console.log(\"Logged out, tokens cleared!\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
             }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"]}
           }
         }
       ]
@@ -188,64 +145,136 @@
       "name": "User Profile",
       "item": [
         {
-          "name": "6. Get Profile",
+          "name": "7. Get Profile",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/users/profile", "host": ["{{baseUrl}}"], "path": ["users", "profile"]}
+          }
+        },
+        {
+          "name": "8. Update Profile",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fullName\": \"Nguyen Van B\",\n    \"newPassword\": \"NewPassword456!\"\n}"
             },
+            "url": {"raw": "{{baseUrl}}/users/profile", "host": ["{{baseUrl}}"], "path": ["users", "profile"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog (Genres & Artists)",
+      "item": [
+        {
+          "name": "9. Get All Genres",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/genres", "host": ["{{baseUrl}}"], "path": ["genres"]}
+          }
+        },
+        {
+          "name": "10. Get Songs By Genre (Cursor)",
+          "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/profile",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "profile"
+              "raw": "{{baseUrl}}/genres/1/songs?limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["genres", "1", "songs"],
+              "query": [
+                {"key": "cursor", "value": "15", "disabled": true},
+                {"key": "limit", "value": "20"}
               ]
             }
           }
         },
         {
-          "name": "7. Update Profile",
+          "name": "11. Get All Artists",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"fullName\": \"Nguyen Van B\",\n    \"newPassword\": \"NewPassword456!\"\n}"
-            },
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/artists", "host": ["{{baseUrl}}"], "path": ["artists"]}
+          }
+        },
+        {
+          "name": "12. Get Songs By Artist (Cursor)",
+          "request": {
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/profile",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "profile"
+              "raw": "{{baseUrl}}/artists/1/songs?limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["artists", "1", "songs"],
+              "query": [
+                {"key": "cursor", "value": "25", "disabled": true},
+                {"key": "limit", "value": "20"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "item": [
+        {
+          "name": "13. Toggle Favorite Song",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "POST",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/users/favorites/1", "host": ["{{baseUrl}}"], "path": ["users", "favorites", "1"]}
+          }
+        },
+        {
+          "name": "14. Get Favorite Songs (Cursor)",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{accessToken}}", "type": "string"}]},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/favorites?limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "favorites"],
+              "query": [
+                {"key": "cursor", "value": "10", "disabled": true},
+                {"key": "limit", "value": "20"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "15. Global Search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/search?q=mưa&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "mưa",
+                  "description": "Từ khóa để tìm kiếm bài hát (tên, lời) và ca sĩ"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Số lượng kết quả tối đa cho mỗi danh sách (bài hát/ca sĩ)"
+                }
               ]
             }
           }
