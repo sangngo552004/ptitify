@@ -1,8 +1,8 @@
 package com.sangngo552004.musicapp.controller;
 
-import com.sangngo552004.musicapp.dto.ApiResponse;
-import com.sangngo552004.musicapp.dto.UpdateProfileRequest;
-import com.sangngo552004.musicapp.dto.UserResponse;
+import com.sangngo552004.musicapp.dto.request.UpdateProfileRequest;
+import com.sangngo552004.musicapp.dto.response.ApiResponse;
+import com.sangngo552004.musicapp.dto.response.UserResponse;
 import com.sangngo552004.musicapp.security.AuthenticatedUserPrincipal;
 import com.sangngo552004.musicapp.service.UserService;
 import jakarta.ws.rs.core.Response;

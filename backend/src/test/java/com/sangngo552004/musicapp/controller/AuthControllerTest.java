@@ -1,10 +1,12 @@
 package com.sangngo552004.musicapp.controller;
 
-import com.sangngo552004.musicapp.dto.ApiResponse;
-import com.sangngo552004.musicapp.dto.AuthResponse;
-import com.sangngo552004.musicapp.dto.LoginRequest;
-import com.sangngo552004.musicapp.dto.RegisterRequest;
-import com.sangngo552004.musicapp.dto.UserResponse;
+import com.sangngo552004.musicapp.dto.request.ForgotPasswordRequest;
+import com.sangngo552004.musicapp.dto.request.LoginRequest;
+import com.sangngo552004.musicapp.dto.request.RefreshTokenRequest;
+import com.sangngo552004.musicapp.dto.request.RegisterRequest;
+import com.sangngo552004.musicapp.dto.response.ApiResponse;
+import com.sangngo552004.musicapp.dto.response.AuthResponse;
+import com.sangngo552004.musicapp.dto.response.UserResponse;
 import com.sangngo552004.musicapp.service.AuthService;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
@@ -60,8 +62,7 @@ class AuthControllerTest {
 
     @Test
     void forgotPasswordShouldReturnGenericSuccessResponse() {
-        com.sangngo552004.musicapp.dto.ForgotPasswordRequest request =
-                new com.sangngo552004.musicapp.dto.ForgotPasswordRequest();
+        ForgotPasswordRequest request = new ForgotPasswordRequest();
         request.setEmail("user@example.com");
 
         Response response = authController.forgotPassword(request);
@@ -75,8 +76,7 @@ class AuthControllerTest {
 
     @Test
     void logoutShouldReturnSuccessResponse() {
-        com.sangngo552004.musicapp.dto.RefreshTokenRequest request =
-                new com.sangngo552004.musicapp.dto.RefreshTokenRequest();
+        RefreshTokenRequest request = new RefreshTokenRequest();
         request.setRefreshToken("refresh-token");
 
         Response response = authController.logout(request);

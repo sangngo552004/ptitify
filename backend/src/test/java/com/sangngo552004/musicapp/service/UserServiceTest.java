@@ -1,9 +1,10 @@
 package com.sangngo552004.musicapp.service;
 
-import com.sangngo552004.musicapp.dto.UpdateProfileRequest;
-import com.sangngo552004.musicapp.dto.UserResponse;
+import com.sangngo552004.musicapp.dto.request.UpdateProfileRequest;
+import com.sangngo552004.musicapp.dto.response.UserResponse;
 import com.sangngo552004.musicapp.entity.User;
 import com.sangngo552004.musicapp.exception.ResourceNotFoundException;
+import com.sangngo552004.musicapp.mapper.UserMapper;
 import com.sangngo552004.musicapp.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,6 +80,19 @@ class UserServiceTest {
 
         when(userRepository.findById(10L)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doAnswer(invocation -> {
+            User source = invocation.getArgument(0);
+            UpdateProfileRequest sourceRequest = invocation.getArgument(1);
+            String hashedPassword = invocation.getArgument(2);
+
+            if (sourceRequest.getFullName() != null && !sourceRequest.getFullName().isBlank()) {
+                source.setFullName(sourceRequest.getFullName().trim());
+            }
+            if (hashedPassword != null) {
+                source.setPassword(hashedPassword);
+            }
+            return null;
+        }).when(userMapper).applyProfileUpdate(any(User.class), any(UpdateProfileRequest.class), any());
         when(userMapper.toResponse(any(User.class))).thenReturn(expected);
 
         UserResponse actual = userService.updateProfile(10L, request);

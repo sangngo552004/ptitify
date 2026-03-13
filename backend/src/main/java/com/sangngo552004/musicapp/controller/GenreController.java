@@ -1,9 +1,9 @@
 package com.sangngo552004.musicapp.controller;
 
-import com.sangngo552004.musicapp.dto.ApiResponse;
-import com.sangngo552004.musicapp.dto.CursorResult;
-import com.sangngo552004.musicapp.dto.GenreResponse;
-import com.sangngo552004.musicapp.dto.SongResponse;
+import com.sangngo552004.musicapp.dto.response.ApiResponse;
+import com.sangngo552004.musicapp.dto.response.CursorResult;
+import com.sangngo552004.musicapp.dto.response.GenreResponse;
+import com.sangngo552004.musicapp.dto.response.SongResponse;
 import com.sangngo552004.musicapp.service.MusicCatalogService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;

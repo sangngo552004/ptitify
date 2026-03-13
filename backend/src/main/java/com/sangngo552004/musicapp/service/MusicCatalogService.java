@@ -1,11 +1,14 @@
 package com.sangngo552004.musicapp.service;
 
-import com.sangngo552004.musicapp.dto.ArtistResponse;
-import com.sangngo552004.musicapp.dto.CursorResult;
-import com.sangngo552004.musicapp.dto.GenreResponse;
-import com.sangngo552004.musicapp.dto.SongResponse;
+import com.sangngo552004.musicapp.dto.response.ArtistResponse;
+import com.sangngo552004.musicapp.dto.response.CursorResult;
+import com.sangngo552004.musicapp.dto.response.GenreResponse;
+import com.sangngo552004.musicapp.dto.response.SongResponse;
 import com.sangngo552004.musicapp.entity.Song;
 import com.sangngo552004.musicapp.exception.ResourceNotFoundException;
+import com.sangngo552004.musicapp.mapper.ArtistMapper;
+import com.sangngo552004.musicapp.mapper.GenreMapper;
+import com.sangngo552004.musicapp.mapper.SongMapper;
 import com.sangngo552004.musicapp.repository.ArtistRepository;
 import com.sangngo552004.musicapp.repository.GenreRepository;
 import com.sangngo552004.musicapp.repository.SongRepository;
@@ -30,19 +33,25 @@ public class MusicCatalogService {
     private SongRepository songRepository;
 
     @Inject
-    private MusicMapper musicMapper;
+    private GenreMapper genreMapper;
+
+    @Inject
+    private ArtistMapper artistMapper;
+
+    @Inject
+    private SongMapper songMapper;
 
     public List<GenreResponse> getGenres() {
         return genreRepository.findAll()
                 .stream()
-                .map(musicMapper::toGenreResponse)
+                .map(genreMapper::toResponse)
                 .toList();
     }
 
     public List<ArtistResponse> getArtists() {
         return artistRepository.findAll()
                 .stream()
-                .map(musicMapper::toArtistResponse)
+                .map(artistMapper::toResponse)
                 .toList();
     }
 
@@ -52,7 +61,7 @@ public class MusicCatalogService {
 
         List<Song> songs = songRepository.findByGenreWithCursor(genreId, normalizeCursor(cursor), normalizeLimit(limit));
         List<SongResponse> items = songs.stream()
-                .map(musicMapper::toSongResponse)
+                .map(songMapper::toResponse)
                 .toList();
 
         return new CursorResult<>(items, songs.isEmpty() ? null : songs.get(songs.size() - 1).getId());
@@ -64,7 +73,7 @@ public class MusicCatalogService {
 
         List<Song> songs = songRepository.findByArtistWithCursor(artistId, normalizeCursor(cursor), normalizeLimit(limit));
         List<SongResponse> items = songs.stream()
-                .map(musicMapper::toSongResponse)
+                .map(songMapper::toResponse)
                 .toList();
 
         return new CursorResult<>(items, songs.isEmpty() ? null : songs.get(songs.size() - 1).getId());

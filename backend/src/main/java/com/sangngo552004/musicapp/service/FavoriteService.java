@@ -1,12 +1,13 @@
 package com.sangngo552004.musicapp.service;
 
-import com.sangngo552004.musicapp.dto.CursorResult;
-import com.sangngo552004.musicapp.dto.FavoriteToggleResponse;
-import com.sangngo552004.musicapp.dto.SongResponse;
+import com.sangngo552004.musicapp.dto.response.CursorResult;
+import com.sangngo552004.musicapp.dto.response.FavoriteToggleResponse;
+import com.sangngo552004.musicapp.dto.response.SongResponse;
 import com.sangngo552004.musicapp.entity.FavoriteSong;
 import com.sangngo552004.musicapp.entity.Song;
 import com.sangngo552004.musicapp.entity.User;
 import com.sangngo552004.musicapp.exception.ResourceNotFoundException;
+import com.sangngo552004.musicapp.mapper.SongMapper;
 import com.sangngo552004.musicapp.repository.FavoriteSongRepository;
 import com.sangngo552004.musicapp.repository.SongRepository;
 import com.sangngo552004.musicapp.repository.UserRepository;
@@ -31,7 +32,7 @@ public class FavoriteService {
     private UserRepository userRepository;
 
     @Inject
-    private MusicMapper musicMapper;
+    private SongMapper songMapper;
 
     public FavoriteToggleResponse toggleFavorite(Long userId, Long songId) {
         User user = userRepository.findById(userId)
@@ -42,14 +43,14 @@ public class FavoriteService {
         return favoriteSongRepository.findByUserIdAndSongId(userId, songId)
                 .map(existingFavorite -> {
                     favoriteSongRepository.delete(existingFavorite);
-                    return new FavoriteToggleResponse(false, musicMapper.toSongResponse(existingFavorite.getSong()));
+                    return new FavoriteToggleResponse(false, songMapper.toResponse(existingFavorite.getSong()));
                 })
                 .orElseGet(() -> {
                     FavoriteSong favoriteSong = new FavoriteSong();
                     favoriteSong.setUser(user);
                     favoriteSong.setSong(song);
                     favoriteSongRepository.save(favoriteSong);
-                    return new FavoriteToggleResponse(true, musicMapper.toSongResponse(song));
+                    return new FavoriteToggleResponse(true, songMapper.toResponse(song));
                 });
     }
 
@@ -65,7 +66,7 @@ public class FavoriteService {
 
         List<SongResponse> items = favorites.stream()
                 .map(FavoriteSong::getSong)
-                .map(musicMapper::toSongResponse)
+                .map(songMapper::toResponse)
                 .toList();
 
         return new CursorResult<>(items, favorites.isEmpty() ? null : favorites.get(favorites.size() - 1).getId());

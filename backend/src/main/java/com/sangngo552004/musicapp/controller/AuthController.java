@@ -1,13 +1,13 @@
 package com.sangngo552004.musicapp.controller;
 
-import com.sangngo552004.musicapp.dto.ApiResponse;
-import com.sangngo552004.musicapp.dto.AuthResponse;
-import com.sangngo552004.musicapp.dto.ForgotPasswordRequest;
-import com.sangngo552004.musicapp.dto.GoogleLoginRequest;
-import com.sangngo552004.musicapp.dto.LoginRequest;
-import com.sangngo552004.musicapp.dto.RefreshTokenRequest;
-import com.sangngo552004.musicapp.dto.RegisterRequest;
-import com.sangngo552004.musicapp.dto.ResetPasswordRequest;
+import com.sangngo552004.musicapp.dto.request.ForgotPasswordRequest;
+import com.sangngo552004.musicapp.dto.request.GoogleLoginRequest;
+import com.sangngo552004.musicapp.dto.request.LoginRequest;
+import com.sangngo552004.musicapp.dto.request.RefreshTokenRequest;
+import com.sangngo552004.musicapp.dto.request.RegisterRequest;
+import com.sangngo552004.musicapp.dto.request.ResetPasswordRequest;
+import com.sangngo552004.musicapp.dto.response.ApiResponse;
+import com.sangngo552004.musicapp.dto.response.AuthResponse;
 import com.sangngo552004.musicapp.service.AuthService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;

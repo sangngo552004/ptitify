@@ -1,4 +1,4 @@
-package com.sangngo552004.musicapp.dto;
+package com.sangngo552004.musicapp.dto.response;
 
 import java.util.List;
 

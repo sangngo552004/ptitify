@@ -1,6 +1,6 @@
 package com.sangngo552004.musicapp.exception;
 
-import com.sangngo552004.musicapp.dto.ApiResponse;
+import com.sangngo552004.musicapp.dto.response.ApiResponse;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;

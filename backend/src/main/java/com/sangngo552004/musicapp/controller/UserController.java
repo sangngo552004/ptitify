@@ -1,11 +1,11 @@
 package com.sangngo552004.musicapp.controller;
 
-import com.sangngo552004.musicapp.dto.ApiResponse;
-import com.sangngo552004.musicapp.dto.CursorResult;
-import com.sangngo552004.musicapp.dto.FavoriteToggleResponse;
-import com.sangngo552004.musicapp.dto.SongResponse;
-import com.sangngo552004.musicapp.dto.UpdateProfileRequest;
-import com.sangngo552004.musicapp.dto.UserResponse;
+import com.sangngo552004.musicapp.dto.request.UpdateProfileRequest;
+import com.sangngo552004.musicapp.dto.response.ApiResponse;
+import com.sangngo552004.musicapp.dto.response.CursorResult;
+import com.sangngo552004.musicapp.dto.response.FavoriteToggleResponse;
+import com.sangngo552004.musicapp.dto.response.SongResponse;
+import com.sangngo552004.musicapp.dto.response.UserResponse;
 import com.sangngo552004.musicapp.security.AuthenticatedUserPrincipal;
 import com.sangngo552004.musicapp.security.Secured;
 import com.sangngo552004.musicapp.service.FavoriteService;

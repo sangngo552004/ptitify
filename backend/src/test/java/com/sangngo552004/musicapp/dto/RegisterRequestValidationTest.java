@@ -1,5 +1,6 @@
 package com.sangngo552004.musicapp.dto;
 
+import com.sangngo552004.musicapp.dto.request.RegisterRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

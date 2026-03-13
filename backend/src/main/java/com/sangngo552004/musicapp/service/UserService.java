@@ -1,9 +1,10 @@
 package com.sangngo552004.musicapp.service;
 
-import com.sangngo552004.musicapp.dto.UpdateProfileRequest;
-import com.sangngo552004.musicapp.dto.UserResponse;
+import com.sangngo552004.musicapp.dto.request.UpdateProfileRequest;
+import com.sangngo552004.musicapp.dto.response.UserResponse;
 import com.sangngo552004.musicapp.entity.User;
 import com.sangngo552004.musicapp.exception.ResourceNotFoundException;
+import com.sangngo552004.musicapp.mapper.UserMapper;
 import com.sangngo552004.musicapp.repository.UserRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -25,14 +26,10 @@ public class UserService {
 
     public UserResponse updateProfile(Long userId, UpdateProfileRequest request) {
         User user = findUser(userId);
-
-        if (request.getFullName() != null && !request.getFullName().isBlank()) {
-            user.setFullName(request.getFullName().trim());
-        }
-
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            user.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
-        }
+        String hashedPassword = request.getPassword() != null && !request.getPassword().isBlank()
+                ? BCrypt.hashpw(request.getPassword(), BCrypt.gensalt())
+                : null;
+        userMapper.applyProfileUpdate(user, request, hashedPassword);
 
         return userMapper.toResponse(userRepository.save(user));
     }

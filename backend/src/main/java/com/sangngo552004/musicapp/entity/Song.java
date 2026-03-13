@@ -23,6 +23,9 @@ public class Song implements Serializable {
     @Column(nullable = false, length = 255)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
+    private String lyrics;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "artist_id", nullable = false)
     private Artist artist;
@@ -57,6 +60,14 @@ public class Song implements Serializable {
 
     public Artist getArtist() {
         return artist;
+    }
+
+    public String getLyrics() {
+        return lyrics;
+    }
+
+    public void setLyrics(String lyrics) {
+        this.lyrics = lyrics;
     }
 
     public void setArtist(Artist artist) {

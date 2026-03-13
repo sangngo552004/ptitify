@@ -1,9 +1,10 @@
-package com.sangngo552004.musicapp.dto;
+package com.sangngo552004.musicapp.dto.response;
 
 public class SongResponse {
 
     private Long id;
     private String title;
+    private String lyrics;
     private Integer duration;
     private String fileUrl;
     private Integer playCount;
@@ -28,6 +29,14 @@ public class SongResponse {
 
     public Integer getDuration() {
         return duration;
+    }
+
+    public String getLyrics() {
+        return lyrics;
+    }
+
+    public void setLyrics(String lyrics) {
+        this.lyrics = lyrics;
     }
 
     public void setDuration(Integer duration) {

@@ -1,15 +1,17 @@
 package com.sangngo552004.musicapp.service;
 
-import com.sangngo552004.musicapp.dto.AuthResponse;
-import com.sangngo552004.musicapp.dto.LoginRequest;
-import com.sangngo552004.musicapp.dto.RefreshTokenRequest;
-import com.sangngo552004.musicapp.dto.RegisterRequest;
-import com.sangngo552004.musicapp.dto.UserResponse;
+import com.sangngo552004.musicapp.dto.request.LoginRequest;
+import com.sangngo552004.musicapp.dto.request.RefreshTokenRequest;
+import com.sangngo552004.musicapp.dto.request.RegisterRequest;
+import com.sangngo552004.musicapp.dto.request.ResetPasswordRequest;
+import com.sangngo552004.musicapp.dto.response.AuthResponse;
+import com.sangngo552004.musicapp.dto.response.UserResponse;
 import com.sangngo552004.musicapp.entity.PasswordResetToken;
 import com.sangngo552004.musicapp.entity.RefreshToken;
 import com.sangngo552004.musicapp.entity.User;
 import com.sangngo552004.musicapp.exception.AuthException;
 import com.sangngo552004.musicapp.exception.ValidationException;
+import com.sangngo552004.musicapp.mapper.UserMapper;
 import com.sangngo552004.musicapp.repository.PasswordResetTokenRepository;
 import com.sangngo552004.musicapp.repository.RefreshTokenRepository;
 import com.sangngo552004.musicapp.repository.UserRepository;
@@ -31,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -74,6 +77,17 @@ class AuthServiceTest {
 
         when(userRepository.existsByEmail("user@example.com")).thenReturn(false);
         when(userRepository.existsByUsername("tester")).thenReturn(false);
+        when(userMapper.toEntity(any(RegisterRequest.class), anyString())).thenAnswer(invocation -> {
+            RegisterRequest source = invocation.getArgument(0);
+            String hashedPassword = invocation.getArgument(1);
+
+            User mapped = new User();
+            mapped.setUsername(source.getUsername());
+            mapped.setEmail(source.getEmail().trim().toLowerCase());
+            mapped.setFullName(source.getFullName().trim());
+            mapped.setPassword(hashedPassword);
+            return mapped;
+        });
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User saved = invocation.getArgument(0);
             saved.setId(1L);
@@ -211,8 +225,7 @@ class AuthServiceTest {
 
         when(passwordResetTokenRepository.findActiveToken("expired-token")).thenReturn(Optional.of(token));
 
-        com.sangngo552004.musicapp.dto.ResetPasswordRequest request =
-                new com.sangngo552004.musicapp.dto.ResetPasswordRequest();
+        ResetPasswordRequest request = new ResetPasswordRequest();
         request.setToken("expired-token");
         request.setNewPassword("newSecret123");
 
