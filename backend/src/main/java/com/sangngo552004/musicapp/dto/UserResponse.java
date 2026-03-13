@@ -1,44 +1,15 @@
-package com.sangngo552004.musicapp.entity;
+package com.sangngo552004.musicapp.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "users")
-public class User implements Serializable {
+public class UserResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true)
     private String username;
-
-    private String password;
-
-    @Column(unique = true, nullable = false)
     private String email;
-
     private String fullName;
-
-    @Column(name = "google_account_id", unique = true)
     private String googleAccountId;
-
-    @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 
     public Long getId() {
         return id;
@@ -54,14 +25,6 @@ public class User implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getEmail() {
