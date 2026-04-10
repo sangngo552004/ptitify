@@ -6,8 +6,12 @@ services:
     container_name: ejb-app
     ports:
       - "8080:8080"
+      - "9990:9990"
     env_file:
       - .env
-    # Nên có depends_on nếu bạn chạy cả MySQL container trong này
-    # depends_on:
-    #   - mysql-db
+    environment:
+      - MUSIC_DIR=/opt/jboss/muzik
+      - APP_BASE_URL=http://localhost:8080/music-app
+    volumes:
+      - ../muzik:/opt/jboss/muzik
+      - ./target/music-app.war:/opt/jboss/wildfly/standalone/deployments/music-app.war

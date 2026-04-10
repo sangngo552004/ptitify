@@ -1,5 +1,26 @@
 import { create } from 'zustand';
-import { Song } from '../data/mockData';
+export interface ApiArtist {
+  id: number;
+  name: string;
+  avatar: string;
+  banner: string;
+}
+
+export interface ApiGenre {
+  id: number;
+  name: string;
+  image: string;
+  color: string;
+}
+
+export interface Song {
+  id: number;
+  title: string;
+  duration: number;
+  fileUrl: string;
+  artist: ApiArtist;
+  genre: ApiGenre;
+}
 
 interface PlayerState {
   currentSong: Song | null;

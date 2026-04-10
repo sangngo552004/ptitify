@@ -6,14 +6,24 @@ import { Coffee } from 'lucide-react';
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email && password) {
-      login(email);
-      navigate('/');
+      setIsLoading(true);
+      setError('');
+      try {
+        await login(email, password);
+        navigate('/');
+      } catch (err: any) {
+        setError(err.message || 'Failed to login');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -35,6 +45,11 @@ export const Login = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-surface py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-primary/10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-md">
+                <p className="text-sm text-red-500">{error}</p>
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-gray-300">Email address</label>
               <div className="mt-1">
@@ -64,9 +79,10 @@ export const Login = () => {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-background bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+                disabled={isLoading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-background bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors disabled:opacity-50"
               >
-                Sign in
+                {isLoading ? 'Signing in...' : 'Sign in'}
               </button>
             </div>
           </form>
