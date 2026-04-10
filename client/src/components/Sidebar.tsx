@@ -22,7 +22,7 @@ export const Sidebar = () => {
             <Coffee className="size-6" />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-white text-base font-bold leading-none">{user?.name || 'Coffee Lover'}</h1>
+            <h1 className="text-white text-base font-bold leading-none">{user?.fullName || 'Coffee Lover'}</h1>
             <p className="text-primary text-xs font-medium uppercase tracking-wider">Premium</p>
           </div>
         </div>

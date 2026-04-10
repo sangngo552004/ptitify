@@ -4,6 +4,7 @@ import com.sangngo552004.musicapp.entity.User;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
 import jakarta.persistence.PersistenceContext;
 
 import java.util.Optional;
@@ -38,30 +39,29 @@ public class UserRepository {
         return findSingle(
                 "SELECT u FROM User u WHERE u.googleAccountId = :googleAccountId",
                 "googleAccountId",
-                googleAccountId
-        );
+                googleAccountId);
     }
 
     public Optional<User> findByEmailOrUsername(String identifier) {
         try {
             User user = entityManager.createQuery(
-                            "SELECT u FROM User u WHERE LOWER(u.email) = LOWER(:identifier) " +
-                                    "OR LOWER(u.username) = LOWER(:identifier)",
-                            User.class
-                    )
+                    "SELECT u FROM User u WHERE LOWER(u.email) = LOWER(:identifier) " +
+                            "OR LOWER(u.username) = LOWER(:identifier)",
+                    User.class)
                     .setParameter("identifier", identifier)
                     .getSingleResult();
             return Optional.of(user);
         } catch (NoResultException ex) {
             return Optional.empty();
+        } catch (NonUniqueResultException ex) {
+            return findByEmail(identifier);
         }
     }
 
     public boolean existsByEmail(String email) {
         Long count = entityManager.createQuery(
-                        "SELECT COUNT(u) FROM User u WHERE LOWER(u.email) = LOWER(:email)",
-                        Long.class
-                )
+                "SELECT COUNT(u) FROM User u WHERE LOWER(u.email) = LOWER(:email)",
+                Long.class)
                 .setParameter("email", email)
                 .getSingleResult();
         return count != null && count > 0;
@@ -69,9 +69,8 @@ public class UserRepository {
 
     public boolean existsByUsername(String username) {
         Long count = entityManager.createQuery(
-                        "SELECT COUNT(u) FROM User u WHERE LOWER(u.username) = LOWER(:username)",
-                        Long.class
-                )
+                "SELECT COUNT(u) FROM User u WHERE LOWER(u.username) = LOWER(:username)",
+                Long.class)
                 .setParameter("username", username)
                 .getSingleResult();
         return count != null && count > 0;

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
@@ -23,6 +23,21 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default function App() {
+  const initAuth = useAuthStore((state) => state.initAuth);
+  const isLoading = useAuthStore((state) => state.isLoading);
+
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary animate-pulse text-xl font-bold">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <BrowserRouter>
       <Routes>

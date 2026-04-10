@@ -41,9 +41,6 @@ public class RefreshToken implements Serializable {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (!revoked) {
-            revoked = false;
-        }
     }
 
     public Long getId() {

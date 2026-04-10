@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { PlayerBar } from './PlayerBar';
 import { Search, Bell, Settings, LogOut } from 'lucide-react';
@@ -7,6 +7,19 @@ import { useAuthStore } from '../store/useAuthStore';
 
 export const Layout = () => {
   const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const currentQuery = location.pathname === '/search' ? (searchParams.get('q') || '') : '';
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val) {
+      navigate(`/search?q=${encodeURIComponent(val)}`);
+    } else {
+      navigate('/search');
+    }
+  };
 
   return (
     <div className="flex h-screen w-full bg-background text-light-accent overflow-hidden font-sans">
@@ -18,6 +31,8 @@ export const Layout = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 size-5" />
               <input
                 type="text"
+                value={currentQuery}
+                onChange={handleSearch}
                 placeholder="Search artists, songs, or podcasts"
                 className="w-full bg-surface/50 border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary outline-none text-white placeholder-gray-500"
               />
@@ -32,15 +47,19 @@ export const Layout = () => {
             </button>
             <div className="flex items-center gap-3 pl-4 border-l border-primary/20">
               <div className="flex-col items-end hidden sm:flex">
-                <span className="text-sm font-bold text-white">{user?.name}</span>
+                <span className="text-sm font-bold text-white">{user?.fullName || user?.username}</span>
                 <span className="text-xs text-primary">Premium</span>
               </div>
-              <div className="size-8 rounded-full bg-primary/20 border border-primary/40 overflow-hidden">
-                <img
-                  src={user?.avatar}
-                  alt="User"
-                  className="w-full h-full object-cover"
-                />
+              <div className="size-8 rounded-full bg-primary/20 border border-primary/40 overflow-hidden flex items-center justify-center shrink-0">
+                {user?.avatarUrl ? (
+                  <img
+                    src={user?.avatarUrl}
+                    alt="User"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="font-bold text-xs text-primary">{user?.username?.[0]?.toUpperCase()}</span>
+                )}
               </div>
               <button onClick={logout} className="text-gray-400 hover:text-red-400 transition-colors ml-2" title="Logout">
                 <LogOut className="size-5" />
